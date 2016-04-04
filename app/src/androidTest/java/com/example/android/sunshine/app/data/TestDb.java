@@ -64,25 +64,33 @@ public class TestDb extends AndroidTestCase {
         // have we created the tables we want?
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
 
-        assertTrue("Error: This means that the database has not been created correctly",
-                c.moveToFirst());
+        assertTrue(
+                "Error: This means that the database has not been created correctly",
+                c.moveToFirst()
+        );
 
         // verify that the tables have been created
         do {
             tableNameHashSet.remove(c.getString(0));
-        } while( c.moveToNext() );
+        } while (c.moveToNext());
 
         // if this fails, it means that your database doesn't contain both the location entry
         // and weather entry tables
-        assertTrue("Error: Your database was created without both the location entry and weather entry tables",
-                tableNameHashSet.isEmpty());
+        assertTrue(
+                "Error: Your database was created without both the location entry and weather entry tables",
+                tableNameHashSet.isEmpty()
+        );
 
         // now, do our tables contain the correct columns?
-        c = db.rawQuery("PRAGMA table_info(" + WeatherContract.LocationEntry.TABLE_NAME + ")",
-                null);
+        c = db.rawQuery(
+                "PRAGMA table_info(" + WeatherContract.LocationEntry.TABLE_NAME + ")",
+                null
+        );
 
-        assertTrue("Error: This means that we were unable to query the database for table information.",
-                c.moveToFirst());
+        assertTrue(
+                "Error: This means that we were unable to query the database for table information.",
+                c.moveToFirst()
+        );
 
         // Build a HashSet of all of the column names we want to look for
         final HashSet<String> locationColumnHashSet = new HashSet<String>();
@@ -96,12 +104,14 @@ public class TestDb extends AndroidTestCase {
         do {
             String columnName = c.getString(columnNameIndex);
             locationColumnHashSet.remove(columnName);
-        } while(c.moveToNext());
+        } while (c.moveToNext());
 
         // if this fails, it means that your database doesn't contain all of the required location
         // entry columns
-        assertTrue("Error: The database doesn't contain all of the required location entry columns",
-                locationColumnHashSet.isEmpty());
+        assertTrue(
+                "Error: The database doesn't contain all of the required location entry columns",
+                locationColumnHashSet.isEmpty()
+        );
         db.close();
     }
 
@@ -161,21 +171,23 @@ public class TestDb extends AndroidTestCase {
         );
 
         // Move the cursor to the first valid database row and check to see if we have any rows
-        assertTrue( "Error: No Records returned from location query", weatherCursor.moveToFirst() );
+        assertTrue("Error: No Records returned from location query", weatherCursor.moveToFirst());
 
         // Fifth Step: Validate the location Query
         TestUtilities.validateCurrentRecord("testInsertReadDb weatherEntry failed to validate",
-                weatherCursor, weatherValues);
+                                            weatherCursor, weatherValues
+        );
 
         // Move the cursor to demonstrate that there is only one record in the database
-        assertFalse( "Error: More than one record returned from weather query",
-                weatherCursor.moveToNext() );
+        assertFalse(
+                "Error: More than one record returned from weather query",
+                weatherCursor.moveToNext()
+        );
 
         // Sixth Step: Close cursor and database
         weatherCursor.close();
         dbHelper.close();
     }
-
 
     /*
         Students: This is a helper method for the testWeatherTable quiz. You can move your
@@ -217,17 +229,20 @@ public class TestDb extends AndroidTestCase {
 
         // Move the cursor to a valid database row and check to see if we got any records back
         // from the query
-        assertTrue( "Error: No Records returned from location query", cursor.moveToFirst() );
+        assertTrue("Error: No Records returned from location query", cursor.moveToFirst());
 
         // Fifth Step: Validate data in resulting Cursor with the original ContentValues
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
         TestUtilities.validateCurrentRecord("Error: Location Query Validation Failed",
-                cursor, testValues);
+                                            cursor, testValues
+        );
 
         // Move the cursor to demonstrate that there is only one record in the database
-        assertFalse( "Error: More than one record returned from location query",
-                cursor.moveToNext() );
+        assertFalse(
+                "Error: More than one record returned from location query",
+                cursor.moveToNext()
+        );
 
         // Sixth Step: Close Cursor and Database
         cursor.close();

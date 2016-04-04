@@ -38,8 +38,8 @@ public class TestUtilities extends AndroidTestCase {
             assertFalse("Column '" + columnName + "' not found. " + error, idx == -1);
             String expectedValue = entry.getValue().toString();
             assertEquals("Value '" + entry.getValue().toString() +
-                    "' did not match the expected value '" +
-                    expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
+                                 "' did not match the expected value '" +
+                                 expectedValue + "'. " + error, expectedValue, valueCursor.getString(idx));
         }
     }
 
