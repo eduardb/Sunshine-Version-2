@@ -17,12 +17,15 @@ package com.example.android.sunshine.app;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -33,7 +36,7 @@ import android.preference.PreferenceManager;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends PreferenceActivity
-        implements Preference.OnPreferenceChangeListener {
+        implements Preference.OnPreferenceChangeListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,18 @@ public class SettingsActivity extends PreferenceActivity
         // updated when the preference changes.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
     }
 
     /**
@@ -66,8 +81,8 @@ public class SettingsActivity extends PreferenceActivity
         );
     }
 
-    @Override
-    public boolean onPreferenceChange(Preference preference, Object value) {
+    private void setPreferenceSummary(Preference preference, Object value) {
+        String key = preference.getKey();
         String stringValue = value.toString();
 
         if (preference instanceof ListPreference) {
@@ -79,10 +94,46 @@ public class SettingsActivity extends PreferenceActivity
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
         } else {
-            // For other preferences, set the summary to the value's simple string representation.
-            preference.setSummary(stringValue);
+            if (key.equals(getString(R.string.pref_location_key))) {
+                @SunshineSyncAdapter.LocationStatus
+                int status = Utility.getLocationStatus(this);
+                switch (status) {
+                    case SunshineSyncAdapter.LOCATION_STATUS_OK:
+                        preference.setSummary(stringValue);
+                        break;
+                    case SunshineSyncAdapter.LOCATION_STATUS_INVALID:
+                        preference.setSummary(getString(R.string.pref_location_error_description, stringValue));
+                        break;
+                    default:
+                        preference.setSummary(getString(R.string.pref_location_unknown_description, stringValue));
+                        break;
+                }
+            } else {
+                // For other preferences, set the summary to the value's simple string representation.
+                preference.setSummary(stringValue);
+            }
         }
+    }
+
+    // This gets called before the preference is changed
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object value) {
+        setPreferenceSummary(preference, value);
         return true;
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+
+        if (key.equals(getString(R.string.pref_location_key))) {
+            // we've changed the location
+            // first clear locationStatus
+            Utility.resetLocationStatus(this);
+            SunshineSyncAdapter.syncImmediately(this);
+        } else if (getString(R.string.pref_location_status_key).equals(key)) {
+            Preference locationPreference = findPreference(getString(R.string.pref_location_key));
+            bindPreferenceSummaryToValue(locationPreference);
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
