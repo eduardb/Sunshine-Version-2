@@ -280,7 +280,7 @@ public class Utility {
             stringId = context.getResources().getIdentifier(
                     String.format(Locale.US, "condition_%d", weatherId),
                     "string",
-                    context.getPackageName());
+                    BuildConfig.APPLICATION_ID);
 
             if (stringId == 0) {
                 return context.getString(R.string.condition_unknown, weatherId);
