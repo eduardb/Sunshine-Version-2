@@ -285,7 +285,6 @@ public class Utility {
             if (stringId == 0) {
                 return context.getString(R.string.condition_unknown, weatherId);
             }
-            return context.getString(stringId);
         }
         return context.getString(stringId);
     }
