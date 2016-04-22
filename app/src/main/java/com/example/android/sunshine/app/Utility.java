@@ -27,6 +27,7 @@ import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Utility {
     public static String getPreferredLocation(Context context) {
@@ -257,6 +258,34 @@ public class Utility {
             return R.drawable.art_clouds;
         }
         return -1;
+    }
+
+    /**
+     * Helper method to provide the string according to the weather
+     * condition id returned by the OpenWeatherMap call.
+     *
+     * @param context   Android context
+     * @param weatherId from OpenWeatherMap API response
+     * @return string for the weather condition. null if no relation is found.
+     */
+    public static String getStringForWeatherCondition(Context context, int weatherId) {
+        // Based on weather code data found at:
+        // http://bugs.openweathermap.org/projects/api/wiki/Weather_Condition_Codes
+        int stringId;
+        if (weatherId >= 200 && weatherId <= 232) {
+            stringId = R.string.condition_2xx;
+        } else if (weatherId >= 300 && weatherId <= 321) {
+            stringId = R.string.condition_3xx;
+        } else {
+            stringId = context.getResources().getIdentifier(
+                    String.format(Locale.US, "condition_%d", weatherId),
+                    "string",
+                    BuildConfig.APPLICATION_ID);
+        }
+        if (stringId == 0) { // if weatherId didn't fit in any of the buckets
+            return context.getString(R.string.condition_unknown, weatherId);
+        }
+        return context.getString(stringId);
     }
 
     public static boolean isNetworkAvailable(Context context) {
