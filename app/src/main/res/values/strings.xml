@@ -117,10 +117,10 @@
   <string name="empty_forecast_list_invalid_location">No weather information available. The location in settings is not recognized by the weather server.</string>
 
   <!-- A11y -->
-  <string name="a11y_forecast">Forecast: <xliff:g id="condition">%1$s</xliff:g></string>
-  <string name="a11y_forecast_icon">Forecast icon: <xliff:g id="condition">%1$s</xliff:g></string>
-  <string name="a11y_high_temp">High: <xliff:g id="high">%1$s</xliff:g></string>
-  <string name="a11y_low_temp">Low: <xliff:g id="low">%1$s</xliff:g></string>
+  <string name="a11y_forecast">Forecast: <xliff:g id="condition" example="Forecast: Storm">%1$s</xliff:g></string>
+  <string name="a11y_forecast_icon">Forecast icon: <xliff:g id="condition" example="Forecast icon: Storm">%1$s</xliff:g></string>
+  <string name="a11y_high_temp">High: <xliff:g id="high" example="High: 25°">%1$s</xliff:g></string>
+  <string name="a11y_low_temp">Low: <xliff:g id="low" example="Low: 15°">%1$s</xliff:g></string>
 
   <!-- Weather Conditions -->
   <string name="Storm">Storm</string>
@@ -174,5 +174,5 @@
   <string name="Severe_Gale">Severe Gale</string>
   <string name="Violent_Storm">Violent Storm</string>
 
-  <string name="condition_unknown">Unknown (<xliff:g id="low">%1$s</xliff:g>)</string>
+  <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$s</xliff:g>)</string>
 </resources>
