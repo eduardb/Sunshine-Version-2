@@ -281,10 +281,9 @@ public class Utility {
                     String.format(Locale.US, "condition_%d", weatherId),
                     "string",
                     BuildConfig.APPLICATION_ID);
-
-            if (stringId == 0) {
-                return context.getString(R.string.condition_unknown, weatherId);
-            }
+        }
+        if (stringId == 0) { // if weatherId didn't fit in any of the buckets
+            return context.getString(R.string.condition_unknown, weatherId);
         }
         return context.getString(stringId);
     }
