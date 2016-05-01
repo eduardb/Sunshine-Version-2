@@ -195,4 +195,9 @@
   <string name="Violent_Storm">Violent Storm</string>
 
   <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$s</xliff:g>)</string>
+
+
+  <!-- Used to form a severe weather alert that reads "Heads up: <weather> in <location>!" -->
+  <string name="gcm_weather_alert_message">Heads up: %1$s in %2$s!</string>
+  <string name="gcm_weather_alert_title">Weather alert!</string>
 </resources>
