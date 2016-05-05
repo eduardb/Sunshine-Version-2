@@ -7,12 +7,16 @@
   <android.support.v7.widget.Toolbar
     android:id="@+id/toolbar"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    android:layout_height="wrap_content"
+    android:elevation="@dimen/appbar_elevation"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    tools:ignore="UnusedAttribute">
 
     <ImageView
       android:layout_width="wrap_content"
-      android:layout_height="match_parent"
+      android:layout_height="?attr/listPreferredItemHeight"
+      android:layout_gravity="center_horizontal"
+      android:layout_marginTop="?attr/actionBarSize"
       android:contentDescription="@null"
       android:scaleType="center"
       android:src="@drawable/ic_logo" />
