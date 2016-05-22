@@ -8,6 +8,7 @@
   app:columnCount="2">
 
   <android.support.v4.widget.Space
+    android:layout_height="@dimen/detail_view_padding_vertical"
     app:layout_columnSpan="2"
     app:layout_columnWeight="1"
     app:layout_rowWeight="1" />
@@ -72,6 +73,7 @@
     tools:text="6°" />
 
   <android.support.v4.widget.Space
+    android:layout_height="@dimen/detail_view_padding_vertical"
     app:layout_columnSpan="2"
     app:layout_columnWeight="1"
     app:layout_rowWeight="1" />
