@@ -51,7 +51,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter forecastAdapter;
     private RecyclerView recyclerView;
     private TextView emptyView;
-    int position = RecyclerView.NO_POSITION;
+    private int position = RecyclerView.NO_POSITION;
     private boolean useTodayLayout;
 
     private static final String SELECTED_KEY = "selected_position";
@@ -119,36 +119,19 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        emptyView = (TextView) rootView.findViewById(R.id.recyclerview_forecast_empty);
+
         // The ForecastAdapter will take data from a source and
         // use it to populate the RecyclerView it's attached to.
-        forecastAdapter = new ForecastAdapter(getContext());
-
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        forecastAdapter = new ForecastAdapter(getContext(), onClickHandler);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        // But set up the empty view first
-        emptyView = (TextView) rootView.findViewById(R.id.recyclerview_forecast_empty);
-//        recyclerView.setEmptyView(mEmptyView);
+        // use this setting to improve performance if you know that changes
+        // in content do not change the layout size of the RecyclerView
         recyclerView.setAdapter(forecastAdapter);
-        // We'll call our MainActivity
-//        recyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                // CursorAdapter returns a cursor at the correct position for getItem(), or null
-//                // if it cannot seek to that position.
-//                Cursor cursor = (Cursor) adapterView.getItemAtPosition(position);
-//                if (cursor != null) {
-//                    String locationSetting = Utility.getPreferredLocation(getActivity());
-//                    ((Callback) getActivity())
-//                            .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-//                                    locationSetting, cursor.getLong(WeatherContract.COL_WEATHER_DATE)
-//                            ));
-//                }
-//                ForecastFragment.this.position = position;
-//            }
-//        });
 
         // If there's instance state, mine it for useful information.
         // The end-goal here is that the user never knows that turning their device sideways
@@ -165,6 +148,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         return rootView;
     }
+
+    private ForecastAdapter.OnClickHandler onClickHandler = new ForecastAdapter.OnClickHandler() {
+        @Override
+        public void onClick(long date, ForecastAdapter.ViewHolder holder) {
+            String locationSetting = Utility.getPreferredLocation(getActivity());
+            ((Callback) getActivity())
+                    .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
+                            locationSetting, date
+                    ));
+            ForecastFragment.this.position = holder.getAdapterPosition();
+        }
+    };
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -290,6 +285,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     }
             }
             emptyView.setText(message);
+            emptyView.setVisibility(View.VISIBLE);
+        } else {
+            emptyView.setVisibility(View.GONE);
         }
     }
 

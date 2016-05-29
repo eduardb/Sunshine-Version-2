@@ -6,7 +6,8 @@
   xmlns:tools="http://schemas.android.com/tools"
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
-  android:background="@drawable/touch_selector"
+  android:background="?android:attr/colorBackground"
+  android:foreground="?attr/selectableItemBackground"
   android:paddingLeft="@dimen/list_item_extra_padding"
   android:paddingRight="@dimen/list_item_extra_padding">
 

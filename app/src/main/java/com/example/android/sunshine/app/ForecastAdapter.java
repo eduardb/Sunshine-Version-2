@@ -21,31 +21,47 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
     private final Context context;
+    private final OnClickHandler onClickHandler;
 
     // Flag to determine if we want to use a separate view for "today".
     private boolean mUseTodayLayout = true;
     private Cursor cursor;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         final ImageView iconView;
         final TextView dateView;
         final TextView descriptionView;
         final TextView highTempView;
         final TextView lowTempView;
+        private final OnClickHandler onClickHandler;
 
-        ViewHolder(View view) {
+        private long dateInMillis;
+
+        ViewHolder(View view, final OnClickHandler onClickHandler) {
             super(view);
+            this.onClickHandler = onClickHandler;
             iconView = (ImageView) view.findViewById(R.id.list_item_icon);
             dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
             descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
             highTempView = (TextView) view.findViewById(R.id.list_item_high_textview);
             lowTempView = (TextView) view.findViewById(R.id.list_item_low_textview);
+
+            view.setOnClickListener(this);
         }
 
+        void setDateInMillis(long dateInMillis) {
+            this.dateInMillis = dateInMillis;
+        }
+
+        @Override
+        public void onClick(View v) {
+            onClickHandler.onClick(dateInMillis, ViewHolder.this);
+        }
     }
-    public ForecastAdapter(Context context) {
+    public ForecastAdapter(Context context, OnClickHandler onClickHandler) {
         this.context = context;
+        this.onClickHandler = onClickHandler;
     }
 
     @Override
@@ -65,7 +81,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
         View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
         view.setFocusable(true);
-        return new ViewHolder(view);
+        return new ViewHolder(view, onClickHandler);
     }
 
     @Override
@@ -96,6 +112,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         long dateInMillis = cursor.getLong(WeatherContract.COL_WEATHER_DATE);
         // Find TextView and set formatted date on it
         holder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        holder.setDateInMillis(dateInMillis);
 
         // Get description from weather condition ID
         String description = Utility.getStringForWeatherCondition(context, weatherId);
@@ -142,5 +159,9 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
     public Cursor getCursor() {
         return cursor;
+    }
+
+    public interface OnClickHandler {
+        void onClick(long date, ViewHolder holder);
     }
 }
