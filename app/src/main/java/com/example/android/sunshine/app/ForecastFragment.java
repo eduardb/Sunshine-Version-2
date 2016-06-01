@@ -15,8 +15,10 @@
  */
 package com.example.android.sunshine.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +30,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,6 +56,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private TextView emptyView;
     private int position = RecyclerView.NO_POSITION;
     private boolean useTodayLayout;
+    private boolean autoSelectView;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -78,6 +82,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+        super.onInflate(context, attrs, savedInstanceState);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ForecastFragment);
+        autoSelectView = typedArray.getBoolean(R.styleable.ForecastFragment_autoSelectView, false);
+        typedArray.recycle();
     }
 
     @Override
@@ -125,7 +137,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // The ForecastAdapter will take data from a source and
         // use it to populate the RecyclerView it's attached to.
-        forecastAdapter = new ForecastAdapter(getContext(), onClickHandler);
+        forecastAdapter = new ForecastAdapter(getContext(), onClickHandler, autoSelectView);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

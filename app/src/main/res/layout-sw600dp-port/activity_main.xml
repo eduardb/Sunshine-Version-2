@@ -52,5 +52,6 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:layout_below="@id/weather_detail_container"
+    app:autoSelectView="true"
     tools:layout="@android:layout/list_content" />
 </RelativeLayout>

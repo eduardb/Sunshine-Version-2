@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.SingleSelector;
+import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 
@@ -22,24 +25,27 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
     private final Context context;
     private final OnClickHandler onClickHandler;
+    private final MultiSelector selector;
 
     // Flag to determine if we want to use a separate view for "today".
     private boolean mUseTodayLayout = true;
     private Cursor cursor;
 
-    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    static class ViewHolder extends SwappingHolder implements View.OnClickListener {
 
         final ImageView iconView;
         final TextView dateView;
         final TextView descriptionView;
         final TextView highTempView;
         final TextView lowTempView;
+        private final MultiSelector selector;
         private final OnClickHandler onClickHandler;
 
         private long dateInMillis;
 
-        ViewHolder(View view, final OnClickHandler onClickHandler) {
-            super(view);
+        ViewHolder(View view, MultiSelector selector, final OnClickHandler onClickHandler) {
+            super(view, selector);
+            this.selector = selector;
             this.onClickHandler = onClickHandler;
             iconView = (ImageView) view.findViewById(R.id.list_item_icon);
             dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
@@ -57,11 +63,16 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         @Override
         public void onClick(View v) {
             onClickHandler.onClick(dateInMillis, ViewHolder.this);
+            if (isSelectable()) {
+                selector.setSelected(this, true);
+            }
         }
     }
-    public ForecastAdapter(Context context, OnClickHandler onClickHandler) {
+    public ForecastAdapter(Context context, OnClickHandler onClickHandler, boolean selectable) {
         this.context = context;
         this.onClickHandler = onClickHandler;
+        selector = new SingleSelector();
+        selector.setSelectable(selectable);
     }
 
     @Override
@@ -81,7 +92,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
         View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
         view.setFocusable(true);
-        return new ViewHolder(view, onClickHandler);
+        return new ViewHolder(view, selector, onClickHandler);
     }
 
     @Override
