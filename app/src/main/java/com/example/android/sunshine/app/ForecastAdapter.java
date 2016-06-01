@@ -68,11 +68,18 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
             }
         }
     }
+
     public ForecastAdapter(Context context, OnClickHandler onClickHandler, boolean selectable) {
         this.context = context;
         this.onClickHandler = onClickHandler;
         selector = new SingleSelector();
         selector.setSelectable(selectable);
+    }
+
+    public void setSelection(int position) {
+        if (selector.isSelectable()) {
+            selector.setSelected(position, getItemId(position), true);
+        }
     }
 
     @Override

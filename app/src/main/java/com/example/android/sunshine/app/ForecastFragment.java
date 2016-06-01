@@ -154,6 +154,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // The listview probably hasn't even been populated yet.  Actually perform the
             // swapout in onLoadFinished.
             position = savedInstanceState.getInt(SELECTED_KEY);
+            forecastAdapter.setSelection(position);
         }
 
         forecastAdapter.setUseTodayLayout(useTodayLayout);
