@@ -146,6 +146,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // in content do not change the layout size of the RecyclerView
         recyclerView.setAdapter(forecastAdapter);
 
+        View parallaxView = rootView.findViewById(R.id.parallax_bar);
+        setUpParallax(parallaxView);
+
         // If there's instance state, mine it for useful information.
         // The end-goal here is that the user never knows that turning their device sideways
         // does crazy lifecycle related things.  It should feel like some stuff stretched out,
@@ -163,6 +166,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         return rootView;
     }
 
+    @Override
+    public void onDestroyView() {
+        recyclerView.clearOnScrollListeners();
+        super.onDestroyView();
+    }
+
     private ForecastAdapter.OnClickHandler onClickHandler = new ForecastAdapter.OnClickHandler() {
         @Override
         public void onClick(long date, ForecastAdapter.ViewHolder holder) {
@@ -174,6 +183,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             ForecastFragment.this.position = holder.getAdapterPosition();
         }
     };
+
+    private void setUpParallax(final View parallaxView) {
+        if (parallaxView == null) {
+            return;
+        }
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int max = parallaxView.getHeight();
+                if (dy > 0) {
+                    parallaxView.setTranslationY(Math.max(-max, parallaxView.getTranslationY() - dy / 2));
+                } else {
+                    parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY() - dy / 2));
+                }
+            }
+        });
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
