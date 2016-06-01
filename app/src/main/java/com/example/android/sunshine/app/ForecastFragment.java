@@ -38,6 +38,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
@@ -260,6 +261,32 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             recyclerView.smoothScrollToPosition(position);
         }
         updateEmptyView();
+        if (data.getCount() > 0) {
+            updateSelection();
+        }
+    }
+
+    private void updateSelection() {
+        recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                // Since we know we're going to get items, we keep the listener around until
+                // we see Children.
+                if (recyclerView.getChildCount() > 0) {
+                    recyclerView.getViewTreeObserver().removeOnPreDrawListener(this);
+                    int itemPosition = forecastAdapter.getSelectedItemPosition();
+                    if (RecyclerView.NO_POSITION == itemPosition) {
+                        itemPosition = 0;
+                    }
+                    RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(itemPosition);
+                    if (null != vh && autoSelectView) {
+                        forecastAdapter.selectView(vh);
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override

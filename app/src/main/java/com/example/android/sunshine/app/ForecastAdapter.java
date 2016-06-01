@@ -15,6 +15,8 @@ import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 
+import java.util.List;
+
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
  * from a {@link Cursor} to a {@link RecyclerView}.
@@ -74,12 +76,6 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         this.onClickHandler = onClickHandler;
         selector = new SingleSelector();
         selector.setSelectable(selectable);
-    }
-
-    public void setSelection(int position) {
-        if (selector.isSelectable()) {
-            selector.setSelected(position, getItemId(position), true);
-        }
     }
 
     @Override
@@ -178,6 +174,27 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     public Cursor getCursor() {
         return cursor;
     }
+
+    public void setSelection(int position) {
+        if (selector.isSelectable()) {
+            selector.setSelected(position, getItemId(position), true);
+        }
+    }
+
+    public int getSelectedItemPosition() {
+        List<Integer> selectedPositions = selector.getSelectedPositions();
+        if (selectedPositions.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        return selectedPositions.get(0);
+    }
+
+    public void selectView(RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof ViewHolder) {
+            ((ViewHolder) viewHolder).onClick(viewHolder.itemView);
+        }
+    }
+
 
     public interface OnClickHandler {
         void onClick(long date, ViewHolder holder);
