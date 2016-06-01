@@ -28,7 +28,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     private final MultiSelector selector;
 
     // Flag to determine if we want to use a separate view for "today".
-    private boolean mUseTodayLayout = true;
+    private boolean useTodayLayout = true;
     private Cursor cursor;
 
     static class ViewHolder extends SwappingHolder implements View.OnClickListener {
@@ -148,7 +148,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && useTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
@@ -160,7 +160,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     }
 
     public void setUseTodayLayout(boolean useTodayLayout) {
-        mUseTodayLayout = useTodayLayout;
+        this.useTodayLayout = useTodayLayout;
     }
 
     public void swapCursor(Cursor newCursor) {
