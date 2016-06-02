@@ -51,8 +51,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
-    private String mForecast;
-    private Uri mUri;
+    private String forecast;
+    private Uri uri;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -107,7 +107,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         Bundle arguments = getArguments();
         if (arguments != null) {
-            mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
+            uri = arguments.getParcelable(DETAIL_URI);
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail_start, container, false);
@@ -144,7 +144,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mForecast + FORECAST_SHARE_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, forecast + FORECAST_SHARE_HASHTAG);
         return shareIntent;
     }
 
@@ -156,22 +156,22 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     void onLocationChanged(String newLocation) {
         // replace the uri, since the location has changed
-        Uri uri = mUri;
+        Uri uri = this.uri;
         if (null != uri) {
             long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
-            mUri = WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            this.uri = WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if (null != mUri) {
+        if (null != uri) {
             // Now create and return a CursorLoader that will take care of
             // creating a Cursor for the data being displayed.
             return new CursorLoader(
                     getActivity(),
-                    mUri,
+                    uri,
                     DETAIL_COLUMNS,
                     null,
                     null,
@@ -249,7 +249,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mPressureLabelView.setContentDescription(mPressureView.getContentDescription());
 
             // We still need this for the share intent
-            mForecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
+            forecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
         }
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
