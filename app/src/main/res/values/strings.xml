@@ -206,4 +206,7 @@
   <!-- Used to form a severe weather alert that reads "Heads up: <weather> in <location>!" -->
   <string name="gcm_weather_alert_message">Heads up: %1$s in %2$s!</string>
   <string name="gcm_weather_alert_title">Weather alert!</string>
+
+  <!-- For Shared Element Transitions -->
+  <string name="detail_icon_transition_name" translatable="false">detail_icon_transition</string>
 </resources>

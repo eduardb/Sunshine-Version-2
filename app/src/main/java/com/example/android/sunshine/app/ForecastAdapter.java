@@ -2,6 +2,7 @@ package com.example.android.sunshine.app;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -121,6 +122,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
                 .load(Utility.getArtUrlForWeatherCondition(context, weatherId))
                 .error(fallbackIconId)
                 .into(holder.iconView);
+
+        // This enables better animations. Even if we lose state due to a device rotation,
+        // the animator can use this to re-find the original view
+        ViewCompat.setTransitionName(holder.iconView, "iconView" + position);
 
         // Read date from cursor
         long dateInMillis = cursor.getLong(WeatherContract.COL_WEATHER_DATE);

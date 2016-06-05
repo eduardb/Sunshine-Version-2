@@ -58,6 +58,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private int position = RecyclerView.NO_POSITION;
     private boolean useTodayLayout;
     private boolean autoSelectView;
+    private boolean holdForTransition;
 
     private static final String SELECTED_KEY = "selected_position";
 
@@ -72,7 +73,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        void onItemSelected(Uri dateUri);
+        void onItemSelected(Uri dateUri, ForecastAdapter.ViewHolder viewHolder);
     }
 
     public ForecastFragment() {
@@ -90,6 +91,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onInflate(context, attrs, savedInstanceState);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ForecastFragment);
         autoSelectView = typedArray.getBoolean(R.styleable.ForecastFragment_autoSelectView, false);
+        holdForTransition = typedArray.getBoolean(R.styleable.ForecastFragment_sharedElementTransitions, false);
         typedArray.recycle();
     }
 
@@ -176,10 +178,10 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         @Override
         public void onClick(long date, ForecastAdapter.ViewHolder holder) {
             String locationSetting = Utility.getPreferredLocation(getActivity());
-            ((Callback) getActivity())
-                    .onItemSelected(WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
-                            locationSetting, date
-                    ));
+            ((Callback) getActivity()).onItemSelected(
+                    WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, date),
+                    holder
+            );
             ForecastFragment.this.position = holder.getAdapterPosition();
         }
     };
@@ -204,6 +206,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        // We hold for transition here just in case the activity
+        // needs to be recreated. In a standard return transition,
+        // this doesn't actually make a difference
+        if (holdForTransition) {
+            getActivity().supportPostponeEnterTransition();
+        }
         getLoaderManager().initLoader(FORECAST_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
     }
@@ -288,7 +296,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             recyclerView.smoothScrollToPosition(position);
         }
         updateEmptyView();
-        if (data.getCount() > 0) {
+        if (data.getCount() == 0) {
+            getActivity().supportStartPostponedEnterTransition();
+        } else {
             updateSelection();
         }
     }
@@ -308,6 +318,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     RecyclerView.ViewHolder vh = recyclerView.findViewHolderForAdapterPosition(itemPosition);
                     if (null != vh && autoSelectView) {
                         forecastAdapter.selectView(vh);
+                    }
+                    if (holdForTransition) {
+                        getActivity().supportStartPostponedEnterTransition();
                     }
                     return true;
                 }

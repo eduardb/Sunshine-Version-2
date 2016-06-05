@@ -48,11 +48,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     static final String DETAIL_URI = "URI";
+    static final String DETAIL_TRANSITION_ANIMATION = "DETAIL_TRANSITION_ANIMATION";
 
     private static final String FORECAST_SHARE_HASHTAG = " #SunshineApp";
 
     private String forecast;
     private Uri uri;
+    private boolean transitionAnimation;
 
     private static final int DETAIL_LOADER = 0;
 
@@ -108,6 +110,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Bundle arguments = getArguments();
         if (arguments != null) {
             uri = arguments.getParcelable(DETAIL_URI);
+            transitionAnimation = arguments.getBoolean(DETAIL_TRANSITION_ANIMATION);
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail_start, container, false);
@@ -256,7 +259,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         Toolbar toolbarView = (Toolbar) getView().findViewById(R.id.toolbar);
 
         // We need to start the enter transition after the data has loaded
-        if (activity instanceof DetailActivity) {
+        if (transitionAnimation) {
             activity.supportStartPostponedEnterTransition();
 
             if (null != toolbarView) {
