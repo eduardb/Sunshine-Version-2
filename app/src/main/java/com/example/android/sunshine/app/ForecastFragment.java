@@ -15,19 +15,23 @@
  */
 package com.example.android.sunshine.app;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.StringRes;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -151,6 +155,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         View parallaxView = rootView.findViewById(R.id.parallax_bar);
         setUpParallax(parallaxView);
 
+        AppBarLayout appBar = (AppBarLayout) rootView.findViewById(R.id.appbar);
+        setUpElevation(appBar);
+
         // If there's instance state, mine it for useful information.
         // The end-goal here is that the user never knows that turning their device sideways
         // does crazy lifecycle related things.  It should feel like some stuff stretched out,
@@ -199,6 +206,30 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
                     parallaxView.setTranslationY(Math.max(-max, parallaxView.getTranslationY() - dy / 2));
                 } else {
                     parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY() - dy / 2));
+                }
+            }
+        });
+    }
+
+    private void setUpElevation(final AppBarLayout appBar) {
+        if (appBar == null) {
+            return;
+        }
+
+        ViewCompat.setElevation(appBar, 0);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return;
+        }
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (recyclerView.computeVerticalScrollOffset() == 0) {
+                    appBar.setElevation(0);
+                } else {
+                    appBar.setElevation(appBar.getTargetElevation());
                 }
             }
         });
