@@ -44,13 +44,13 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
-    private boolean mTwoPane;
-    private String mLocation;
+    private boolean twoPane;
+    private String location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLocation = Utility.getPreferredLocation(this);
+        location = Utility.getPreferredLocation(this);
 
         setContentView(R.layout.activity_main);
 
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
             // in two-pane mode.
-            mTwoPane = true;
+            twoPane = true;
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
                         .commit();
             }
         } else {
-            mTwoPane = false;
+            twoPane = false;
             if (actionBar != null) {
                 actionBar.setElevation(0f);
             }
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
 
         ForecastFragment forecastFragment = ((ForecastFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_forecast));
-        forecastFragment.setUseTodayLayout(!mTwoPane);
+        forecastFragment.setUseTodayLayout(!twoPane);
 
         SunshineSyncAdapter.initializeSyncAdapter(this);
 
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
         super.onResume();
         String location = Utility.getPreferredLocation(this);
         // update the location in our second pane using the fragment manager
-        if (location != null && !location.equals(mLocation)) {
+        if (location != null && !location.equals(this.location)) {
             ForecastFragment ff = (ForecastFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
             if (null != ff) {
                 ff.onLocationChanged();
@@ -143,13 +143,13 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
             if (null != df) {
                 df.onLocationChanged(location);
             }
-            mLocation = location;
+            this.location = location;
         }
     }
 
     @Override
     public void onItemSelected(Uri contentUri, ForecastAdapter.ViewHolder viewHolder) {
-        if (mTwoPane) {
+        if (twoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
