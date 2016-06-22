@@ -184,66 +184,74 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data != null && data.moveToFirst()) {
-            // Read weather condition ID from cursor
-            int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
-
-            // Use weather art image
-            Glide.with(this)
-                    .load(Utility.getArtUrlForWeatherCondition(getContext(), weatherId))
-                    .error(Utility.getArtResourceForWeatherCondition(weatherId))
-                    .into(iconView);
-
-            // Read date from cursor and update views for day of week and date
-            long date = data.getLong(COL_WEATHER_DATE);
-            String dateText = Utility.getFullFriendlyDayString(getActivity(), date);
-            dateView.setText(dateText);
-
-            // Get description from weather condition ID
-            String description = Utility.getStringForWeatherCondition(getActivity(), weatherId);
-            descriptionView.setText(description);
-            descriptionView.setContentDescription(getString(R.string.a11y_forecast, description));
-
-            // For accessibility, add a content description to the icon field. Because the ImageView
-            // is independently focusable, it's better to have a description of the image. Using
-            // null is appropriate when the image is purely decorative or when the image already
-            // has text describing it in the same UI component.
-            iconView.setContentDescription(getString(R.string.a11y_forecast_icon, description));
-
-            // Read high temperature from cursor and update view
-            double high = data.getDouble(COL_WEATHER_MAX_TEMP);
-            String highString = Utility.formatTemperature(getActivity(), high);
-            highTempView.setText(highString);
-            highTempView.setContentDescription(getString(R.string.a11y_high_temp, highString));
-
-            // Read low temperature from cursor and update view
-            double low = data.getDouble(COL_WEATHER_MIN_TEMP);
-            String lowString = Utility.formatTemperature(getActivity(), low);
-            lowTempView.setText(lowString);
-            lowTempView.setContentDescription(getString(R.string.a11y_low_temp, lowString));
-
-            // Read humidity from cursor and update view
-            float humidity = data.getFloat(COL_WEATHER_HUMIDITY);
-            humidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
-            humidityView.setContentDescription(getString(R.string.a11y_humidity, humidityView.getText()));
-            humidityLabelView.setContentDescription(humidityView.getContentDescription());
-
-            // Read wind speed and direction from cursor and update view
-            float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
-            float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
-            windView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
-            windView.setContentDescription(getString(R.string.a11y_wind, windView.getText()));
-            windLabelView.setContentDescription(windView.getContentDescription());
-
-            // Read pressure from cursor and update view
-            float pressure = data.getFloat(COL_WEATHER_PRESSURE);
-            pressureView.setText(getString(R.string.format_pressure, pressure));
-            pressureView.setContentDescription(getString(R.string.a11y_pressure, pressureView.getText()));
-            pressureLabelView.setContentDescription(pressureView.getContentDescription());
-
-            // We still need this for the share intent
-            forecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
+            updateUiWith(data);
         }
 
+        setUpToolbar();
+    }
+
+    private void updateUiWith(Cursor data) {
+        // Read weather condition ID from cursor
+        int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
+
+        // Use weather art image
+        Glide.with(this)
+                .load(Utility.getArtUrlForWeatherCondition(getContext(), weatherId))
+                .error(Utility.getArtResourceForWeatherCondition(weatherId))
+                .into(iconView);
+
+        // Read date from cursor and update views for day of week and date
+        long date = data.getLong(COL_WEATHER_DATE);
+        String dateText = Utility.getFullFriendlyDayString(getActivity(), date);
+        dateView.setText(dateText);
+
+        // Get description from weather condition ID
+        String description = Utility.getStringForWeatherCondition(getActivity(), weatherId);
+        descriptionView.setText(description);
+        descriptionView.setContentDescription(getString(R.string.a11y_forecast, description));
+
+        // For accessibility, add a content description to the icon field. Because the ImageView
+        // is independently focusable, it's better to have a description of the image. Using
+        // null is appropriate when the image is purely decorative or when the image already
+        // has text describing it in the same UI component.
+        iconView.setContentDescription(getString(R.string.a11y_forecast_icon, description));
+
+        // Read high temperature from cursor and update view
+        double high = data.getDouble(COL_WEATHER_MAX_TEMP);
+        String highString = Utility.formatTemperature(getActivity(), high);
+        highTempView.setText(highString);
+        highTempView.setContentDescription(getString(R.string.a11y_high_temp, highString));
+
+        // Read low temperature from cursor and update view
+        double low = data.getDouble(COL_WEATHER_MIN_TEMP);
+        String lowString = Utility.formatTemperature(getActivity(), low);
+        lowTempView.setText(lowString);
+        lowTempView.setContentDescription(getString(R.string.a11y_low_temp, lowString));
+
+        // Read humidity from cursor and update view
+        float humidity = data.getFloat(COL_WEATHER_HUMIDITY);
+        humidityView.setText(getActivity().getString(R.string.format_humidity, humidity));
+        humidityView.setContentDescription(getString(R.string.a11y_humidity, humidityView.getText()));
+        humidityLabelView.setContentDescription(humidityView.getContentDescription());
+
+        // Read wind speed and direction from cursor and update view
+        float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
+        float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
+        windView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
+        windView.setContentDescription(getString(R.string.a11y_wind, windView.getText()));
+        windLabelView.setContentDescription(windView.getContentDescription());
+
+        // Read pressure from cursor and update view
+        float pressure = data.getFloat(COL_WEATHER_PRESSURE);
+        pressureView.setText(getString(R.string.format_pressure, pressure));
+        pressureView.setContentDescription(getString(R.string.a11y_pressure, pressureView.getText()));
+        pressureLabelView.setContentDescription(pressureView.getContentDescription());
+
+        // We still need this for the share intent
+        forecast = String.format("%s - %s - %s/%s", dateText, description, high, low);
+    }
+
+    private void setUpToolbar() {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         Toolbar toolbarView = (Toolbar) getView().findViewById(R.id.toolbar);
 
