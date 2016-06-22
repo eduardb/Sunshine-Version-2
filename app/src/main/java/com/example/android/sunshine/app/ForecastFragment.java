@@ -77,7 +77,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        void onItemSelected(Uri dateUri, ForecastAdapter.ViewHolder viewHolder);
+        void onItemSelected(Uri dateUri, View sharedElement);
     }
 
     public ForecastFragment() {
@@ -183,13 +183,13 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private ForecastAdapter.OnClickHandler onClickHandler = new ForecastAdapter.OnClickHandler() {
         @Override
-        public void onClick(long date, ForecastAdapter.ViewHolder holder) {
+        public void onClick(int position, long date, View sharedElement) {
             String locationSetting = Utility.getPreferredLocation(getActivity());
             ((Callback) getActivity()).onItemSelected(
                     WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, date),
-                    holder
+                    sharedElement
             );
-            ForecastFragment.this.position = holder.getAdapterPosition();
+            ForecastFragment.this.position = position;
         }
     };
 

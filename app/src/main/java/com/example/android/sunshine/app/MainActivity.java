@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
     }
 
     @Override
-    public void onItemSelected(Uri contentUri, ForecastAdapter.ViewHolder viewHolder) {
+    public void onItemSelected(Uri contentUri, View sharedElement) {
         if (twoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements ForecastFragment.
                     .setData(contentUri);
             ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     this,
-                    new Pair<View, String>(viewHolder.iconView, getString(R.string.detail_icon_transition_name))
+                    new Pair<>(sharedElement, getString(R.string.detail_icon_transition_name))
             );
             ActivityCompat.startActivity(this, intent, activityOptions.toBundle());
         }

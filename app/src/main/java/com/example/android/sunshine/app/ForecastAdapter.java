@@ -65,7 +65,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
         @Override
         public void onClick(View v) {
-            onClickHandler.onClick(dateInMillis, ViewHolder.this);
+            onClickHandler.onClick(getAdapterPosition(), dateInMillis, iconView);
             if (isSelectable()) {
                 selector.setSelected(this, true);
             }
@@ -202,6 +202,6 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
 
 
     public interface OnClickHandler {
-        void onClick(long date, ViewHolder holder);
+        void onClick(int position, long date, View sharedElement);
     }
 }
