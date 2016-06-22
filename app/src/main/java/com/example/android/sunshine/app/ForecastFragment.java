@@ -197,18 +197,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         if (parallaxView == null) {
             return;
         }
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int max = parallaxView.getHeight();
-                if (dy > 0) {
-                    parallaxView.setTranslationY(Math.max(-max, parallaxView.getTranslationY() - dy / 2));
-                } else {
-                    parallaxView.setTranslationY(Math.min(0, parallaxView.getTranslationY() - dy / 2));
-                }
-            }
-        });
+        recyclerView.addOnScrollListener(new ParallaxingOnScrollListener(parallaxView));
     }
 
     private void setUpElevation(final AppBarLayout appBar) {
