@@ -157,10 +157,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     void onLocationChanged(String newLocation) {
         // replace the uri, since the location has changed
-        Uri uri = this.uri;
         if (null != uri) {
             long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
-            this.uri = WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+            uri = WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
             getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
         }
     }
