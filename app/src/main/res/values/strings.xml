@@ -200,7 +200,7 @@
   <string name="Severe_Gale">Severe Gale</string>
   <string name="Violent_Storm">Violent Storm</string>
 
-  <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$s</xliff:g>)</string>
+  <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$d</xliff:g>)</string>
 
 
   <!-- Used to form a severe weather alert that reads "Heads up: <weather> in <location>!" -->
