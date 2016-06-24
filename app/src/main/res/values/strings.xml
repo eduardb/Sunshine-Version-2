@@ -38,7 +38,7 @@
 
   <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
   <string name="pref_location_default"
-    translatable="false">94043</string>
+    translatable="false">Barcelona</string>
 
   <!-- Strings related to Notification Enabled preference -->
   <string name="pref_enable_notifications_key"
@@ -107,15 +107,18 @@
   <!-- Temperature format [CHAR LIMIT=5 -->
   <string name="format_temperature"><xliff:g id="temp">%1.0f</xliff:g>\u00B0</string>
 
+  <string name="wind">Wind</string>
   <!-- Windspeed formats -->
   <!-- Wind in mph [CHAR LIMIT=25] -->
   <string name="format_wind_mph">Wind: <xliff:g id="speed">%1$1.0f</xliff:g> mph <xliff:g id="direction">%2$s</xliff:g></string>
   <!-- Wind in kph [CHAR LIMIT=25] -->
   <string name="format_wind_kmh">Wind: <xliff:g id="speed">%1$1.0f</xliff:g> km/h <xliff:g id="direction">%2$s</xliff:g></string>
 
+  <string name="pressure">Pressure</string>
   <!-- Pressure format CHAR LIMIT=25] -->
   <string name="format_pressure">Pressure: <xliff:g id="pressure">%1.0f</xliff:g> hPa</string>
 
+  <string name="humidity">Humidity</string>
   <!-- Humidity format CHAR LIMIT=25]-->
   <string name="format_humidity">Humidity: <xliff:g id="humidity">%1.0f</xliff:g> %%</string>
 
@@ -141,6 +144,9 @@
   <string name="a11y_forecast_icon">Forecast icon: <xliff:g id="condition" example="Forecast icon: Storm">%1$s</xliff:g></string>
   <string name="a11y_high_temp">High: <xliff:g id="high" example="High: 25°">%1$s</xliff:g></string>
   <string name="a11y_low_temp">Low: <xliff:g id="low" example="Low: 15°">%1$s</xliff:g></string>
+  <string name="a11y_humidity">Humidity: <xliff:g id="humidity">%1$s</xliff:g></string>
+  <string name="a11y_pressure">Barometric Pressure: <xliff:g id="pressure">%1$s</xliff:g></string>
+  <string name="a11y_wind">Wind speed and direction: <xliff:g id="wind">%1$s</xliff:g></string>
 
   <!-- Weather Conditions -->
   <string name="Storm">Storm</string>
@@ -194,10 +200,13 @@
   <string name="Severe_Gale">Severe Gale</string>
   <string name="Violent_Storm">Violent Storm</string>
 
-  <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$s</xliff:g>)</string>
+  <string name="condition_unknown">Unknown (<xliff:g id="code" example="Unknown (999)">%1$d</xliff:g>)</string>
 
 
   <!-- Used to form a severe weather alert that reads "Heads up: <weather> in <location>!" -->
   <string name="gcm_weather_alert_message">Heads up: %1$s in %2$s!</string>
   <string name="gcm_weather_alert_title">Weather alert!</string>
+
+  <!-- For Shared Element Transitions -->
+  <string name="detail_icon_transition_name" translatable="false">detail_icon_transition</string>
 </resources>

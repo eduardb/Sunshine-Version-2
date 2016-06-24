@@ -2,57 +2,86 @@ package com.example.android.sunshine.app;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.widget.CursorAdapter;
+import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bignerdranch.android.multiselector.MultiSelector;
+import com.bignerdranch.android.multiselector.SingleSelector;
+import com.bignerdranch.android.multiselector.SwappingHolder;
+import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 
-import com.bumptech.glide.Glide;
+import java.util.List;
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
- * from a {@link Cursor} to a {@link android.widget.ListView}.
+ * from a {@link Cursor} to a {@link RecyclerView}.
  */
-public class ForecastAdapter extends CursorAdapter {
+public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHolder> {
 
-    private static final int VIEW_TYPE_COUNT = 2;
     private static final int VIEW_TYPE_TODAY = 0;
     private static final int VIEW_TYPE_FUTURE_DAY = 1;
+    private final Context context;
+    private final OnClickHandler onClickHandler;
+    private final MultiSelector selector;
 
     // Flag to determine if we want to use a separate view for "today".
-    private boolean mUseTodayLayout = true;
+    private boolean useTodayLayout = true;
+    private Cursor cursor;
 
-    /**
-     * Cache of the children views for a forecast list item.
-     */
-    public static class ViewHolder {
-        public final ImageView iconView;
-        public final TextView dateView;
-        public final TextView descriptionView;
-        public final TextView highTempView;
-        public final TextView lowTempView;
+    static class ViewHolder extends SwappingHolder implements View.OnClickListener {
 
-        public ViewHolder(View view) {
+        final ImageView iconView;
+        final TextView dateView;
+        final TextView descriptionView;
+        final TextView highTempView;
+        final TextView lowTempView;
+        private final MultiSelector selector;
+        private final OnClickHandler onClickHandler;
+
+        private long dateInMillis;
+
+        ViewHolder(View view, MultiSelector selector, final OnClickHandler onClickHandler) {
+            super(view, selector);
+            this.selector = selector;
+            this.onClickHandler = onClickHandler;
             iconView = (ImageView) view.findViewById(R.id.list_item_icon);
             dateView = (TextView) view.findViewById(R.id.list_item_date_textview);
             descriptionView = (TextView) view.findViewById(R.id.list_item_forecast_textview);
             highTempView = (TextView) view.findViewById(R.id.list_item_high_textview);
             lowTempView = (TextView) view.findViewById(R.id.list_item_low_textview);
+
+            view.setOnClickListener(this);
+        }
+
+        void setDateInMillis(long dateInMillis) {
+            this.dateInMillis = dateInMillis;
+        }
+
+        @Override
+        public void onClick(View v) {
+            onClickHandler.onClick(getAdapterPosition(), dateInMillis, iconView);
+            if (isSelectable()) {
+                selector.setSelected(this, true);
+            }
         }
     }
 
-    public ForecastAdapter(Context context, Cursor c, int flags) {
-        super(context, c, flags);
+    public ForecastAdapter(Context context, OnClickHandler onClickHandler, boolean selectable) {
+        this.context = context;
+        this.onClickHandler = onClickHandler;
+        selector = new SingleSelector();
+        selector.setSelectable(selectable);
     }
 
     @Override
-    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Choose the layout type
-        int viewType = getItemViewType(cursor.getPosition());
         int layoutId = -1;
         switch (viewType) {
             case VIEW_TYPE_TODAY: {
@@ -65,20 +94,16 @@ public class ForecastAdapter extends CursorAdapter {
             }
         }
 
-        View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
-
-        ViewHolder viewHolder = new ViewHolder(view);
-        view.setTag(viewHolder);
-
-        return view;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layoutId, parent, false);
+        view.setFocusable(true);
+        return new ViewHolder(view, selector, onClickHandler);
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        cursor.moveToPosition(position);
 
-        ViewHolder viewHolder = (ViewHolder) view.getTag();
-
-        int viewType = getItemViewType(cursor.getPosition());
+        int viewType = holder.getItemViewType();
         int weatherId = cursor.getInt(WeatherContract.COL_WEATHER_CONDITION_ID);
         int fallbackIconId;
         switch (viewType) {
@@ -96,18 +121,23 @@ public class ForecastAdapter extends CursorAdapter {
         Glide.with(context)
                 .load(Utility.getArtUrlForWeatherCondition(context, weatherId))
                 .error(fallbackIconId)
-                .into(viewHolder.iconView);
+                .into(holder.iconView);
+
+        // This enables better animations. Even if we lose state due to a device rotation,
+        // the animator can use this to re-find the original view
+        ViewCompat.setTransitionName(holder.iconView, "iconView" + position);
 
         // Read date from cursor
         long dateInMillis = cursor.getLong(WeatherContract.COL_WEATHER_DATE);
         // Find TextView and set formatted date on it
-        viewHolder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        holder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        holder.setDateInMillis(dateInMillis);
 
         // Get description from weather condition ID
         String description = Utility.getStringForWeatherCondition(context, weatherId);
         // Find TextView and set weather forecast on it
-        viewHolder.descriptionView.setText(description);
-        viewHolder.descriptionView.setContentDescription(context.getString(R.string.a11y_forecast, description));
+        holder.descriptionView.setText(description);
+        holder.descriptionView.setContentDescription(context.getString(R.string.a11y_forecast, description));
 
         // For accessibility, we don't want a content description for the icon field
         // because the information is repeated in the description view and the icon
@@ -115,26 +145,63 @@ public class ForecastAdapter extends CursorAdapter {
 
         // Read high temperature from cursor
         String high = Utility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MAX_TEMP));
-        viewHolder.highTempView.setText(high);
-        viewHolder.highTempView.setContentDescription(context.getString(R.string.a11y_high_temp, high));
+        holder.highTempView.setText(high);
+        holder.highTempView.setContentDescription(context.getString(R.string.a11y_high_temp, high));
 
         // Read low temperature from cursor
         String low = Utility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MIN_TEMP));
-        viewHolder.lowTempView.setText(low);
-        viewHolder.lowTempView.setContentDescription(context.getString(R.string.a11y_low_temp, low));
-    }
-
-    public void setUseTodayLayout(boolean useTodayLayout) {
-        mUseTodayLayout = useTodayLayout;
+        holder.lowTempView.setText(low);
+        holder.lowTempView.setContentDescription(context.getString(R.string.a11y_low_temp, low));
     }
 
     @Override
     public int getItemViewType(int position) {
-        return (position == 0 && mUseTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
+        return (position == 0 && useTodayLayout) ? VIEW_TYPE_TODAY : VIEW_TYPE_FUTURE_DAY;
     }
 
     @Override
-    public int getViewTypeCount() {
-        return VIEW_TYPE_COUNT;
+    public int getItemCount() {
+        if (cursor == null) {
+            return 0;
+        }
+        return cursor.getCount();
+    }
+
+    public void setUseTodayLayout(boolean useTodayLayout) {
+        this.useTodayLayout = useTodayLayout;
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        cursor = newCursor;
+        notifyDataSetChanged();
+    }
+
+    public Cursor getCursor() {
+        return cursor;
+    }
+
+    public void setSelection(int position) {
+        if (selector.isSelectable()) {
+            selector.setSelected(position, getItemId(position), true);
+        }
+    }
+
+    public int getSelectedItemPosition() {
+        List<Integer> selectedPositions = selector.getSelectedPositions();
+        if (selectedPositions.isEmpty()) {
+            return RecyclerView.NO_POSITION;
+        }
+        return selectedPositions.get(0);
+    }
+
+    public void selectView(RecyclerView.ViewHolder viewHolder) {
+        if (viewHolder instanceof ViewHolder) {
+            ((ViewHolder) viewHolder).onClick(viewHolder.itemView);
+        }
+    }
+
+
+    public interface OnClickHandler {
+        void onClick(int position, long date, View sharedElement);
     }
 }

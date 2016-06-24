@@ -17,7 +17,7 @@ public class LocationEditTextPreference extends EditTextPreference {
 
     private static final int DEFAULT_MINIMUM_LOCATION_LENGTH = 2;
 
-    private int mMinLenght = DEFAULT_MINIMUM_LOCATION_LENGTH;
+    private int minLength = DEFAULT_MINIMUM_LOCATION_LENGTH;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public LocationEditTextPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -47,7 +47,7 @@ public class LocationEditTextPreference extends EditTextPreference {
                     attrs, R.styleable.LocationEditTextPreference, 0, 0);
 
             try {
-                mMinLenght = a.getInteger(R.styleable.LocationEditTextPreference_minLenght, DEFAULT_MINIMUM_LOCATION_LENGTH);
+                minLength = a.getInteger(R.styleable.LocationEditTextPreference_minLength, DEFAULT_MINIMUM_LOCATION_LENGTH);
             } finally {
                 a.recycle();
             }
@@ -72,7 +72,7 @@ public class LocationEditTextPreference extends EditTextPreference {
                 Dialog dialog = getDialog();
                 if (dialog instanceof AlertDialog) {
                     Button positiveButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                    positiveButton.setEnabled(s.length() >= mMinLenght);
+                    positiveButton.setEnabled(s.length() >= minLength);
                 }
             }
         });
