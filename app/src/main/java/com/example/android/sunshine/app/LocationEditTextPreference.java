@@ -11,7 +11,13 @@ import android.preference.EditTextPreference;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 public class LocationEditTextPreference extends EditTextPreference {
 
@@ -52,6 +58,26 @@ public class LocationEditTextPreference extends EditTextPreference {
                 a.recycle();
             }
         }
+
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(context);
+        if (resultCode == ConnectionResult.SUCCESS) {
+            // Add the get current location widget to our location preference
+            setWidgetLayoutResource(R.layout.pref_current_location);
+        }
+    }
+
+    @Override
+    protected View onCreateView(ViewGroup parent) {
+        View view = super.onCreateView(parent);
+        View currentLocation = view.findViewById(R.id.current_location);
+        currentLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getContext(), "Current location clicked", Toast.LENGTH_SHORT).show();
+            }
+        });
+        return view;
     }
 
     @Override
