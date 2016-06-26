@@ -116,6 +116,11 @@
     <service
       android:name=".gcm.RegistrationIntentService"
       android:exported="false" />
+
+    <!-- Places API key -->
+    <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="AIzaSyCUJZtuo9i8v1IP0bbFhZFVkBmhXJi5fFQ" />
   </application>
 
 </manifest>
