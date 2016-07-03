@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
@@ -156,7 +157,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         setUpParallax(parallaxView);
 
         AppBarLayout appBar = (AppBarLayout) rootView.findViewById(R.id.appbar);
-        setUpElevation(appBar);
+        if (appBar != null) {
+            setUpElevation(appBar);
+        }
 
         // If there's instance state, mine it for useful information.
         // The end-goal here is that the user never knows that turning their device sideways
@@ -200,11 +203,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         recyclerView.addOnScrollListener(new ParallaxingOnScrollListener(parallaxView));
     }
 
-    private void setUpElevation(final AppBarLayout appBar) {
-        if (appBar == null) {
-            return;
-        }
-
+    private void setUpElevation(@NonNull  final AppBarLayout appBar) {
         ViewCompat.setElevation(appBar, 0);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
