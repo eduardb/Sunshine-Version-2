@@ -38,6 +38,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.data.WeatherContract.WeatherEntry;
+import com.example.android.sunshine.app.utils.DateUtility;
+import com.example.android.sunshine.app.utils.PrefUtility;
+import com.example.android.sunshine.app.utils.WeatherUtility;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -196,17 +199,17 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         // Use weather art image
         Glide.with(this)
-                .load(Utility.getArtUrlForWeatherCondition(getContext(), weatherId))
-                .error(Utility.getArtResourceForWeatherCondition(weatherId))
+                .load(WeatherUtility.getArtUrlForWeatherCondition(getContext(), weatherId))
+                .error(WeatherUtility.getArtResourceForWeatherCondition(weatherId))
                 .into(iconView);
 
         // Read date from cursor and update views for day of week and date
         long date = data.getLong(COL_WEATHER_DATE);
-        String dateText = Utility.getFullFriendlyDayString(getActivity(), date);
+        String dateText = DateUtility.getFullFriendlyDayString(getActivity(), date);
         dateView.setText(dateText);
 
         // Get description from weather condition ID
-        String description = Utility.getStringForWeatherCondition(getActivity(), weatherId);
+        String description = WeatherUtility.getStringForWeatherCondition(getActivity(), weatherId);
         descriptionView.setText(description);
         descriptionView.setContentDescription(getString(R.string.a11y_forecast, description));
 
@@ -218,13 +221,13 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
         // Read high temperature from cursor and update view
         double high = data.getDouble(COL_WEATHER_MAX_TEMP);
-        String highString = Utility.formatTemperature(getActivity(), high);
+        String highString = PrefUtility.formatTemperature(getActivity(), high);
         highTempView.setText(highString);
         highTempView.setContentDescription(getString(R.string.a11y_high_temp, highString));
 
         // Read low temperature from cursor and update view
         double low = data.getDouble(COL_WEATHER_MIN_TEMP);
-        String lowString = Utility.formatTemperature(getActivity(), low);
+        String lowString = PrefUtility.formatTemperature(getActivity(), low);
         lowTempView.setText(lowString);
         lowTempView.setContentDescription(getString(R.string.a11y_low_temp, lowString));
 
@@ -237,7 +240,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         // Read wind speed and direction from cursor and update view
         float windSpeedStr = data.getFloat(COL_WEATHER_WIND_SPEED);
         float windDirStr = data.getFloat(COL_WEATHER_DEGREES);
-        windView.setText(Utility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
+        windView.setText(WeatherUtility.getFormattedWind(getActivity(), windSpeedStr, windDirStr));
         windView.setContentDescription(getString(R.string.a11y_wind, windView.getText()));
         windLabelView.setContentDescription(windView.getContentDescription());
 

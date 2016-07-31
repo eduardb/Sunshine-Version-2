@@ -15,6 +15,9 @@ import com.bignerdranch.android.multiselector.SingleSelector;
 import com.bignerdranch.android.multiselector.SwappingHolder;
 import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherContract;
+import com.example.android.sunshine.app.utils.DateUtility;
+import com.example.android.sunshine.app.utils.PrefUtility;
+import com.example.android.sunshine.app.utils.WeatherUtility;
 
 import java.util.List;
 
@@ -109,17 +112,17 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         switch (viewType) {
             case VIEW_TYPE_TODAY: {
                 // Get weather icon
-                fallbackIconId = Utility.getArtResourceForWeatherCondition(weatherId);
+                fallbackIconId = WeatherUtility.getArtResourceForWeatherCondition(weatherId);
                 break;
             }
             default: {
                 // Get weather icon
-                fallbackIconId = Utility.getIconResourceForWeatherCondition(weatherId);
+                fallbackIconId = WeatherUtility.getIconResourceForWeatherCondition(weatherId);
                 break;
             }
         }
         Glide.with(context)
-                .load(Utility.getArtUrlForWeatherCondition(context, weatherId))
+                .load(WeatherUtility.getArtUrlForWeatherCondition(context, weatherId))
                 .error(fallbackIconId)
                 .into(holder.iconView);
 
@@ -130,11 +133,11 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         // Read date from cursor
         long dateInMillis = cursor.getLong(WeatherContract.COL_WEATHER_DATE);
         // Find TextView and set formatted date on it
-        holder.dateView.setText(Utility.getFriendlyDayString(context, dateInMillis));
+        holder.dateView.setText(DateUtility.getFriendlyDayString(context, dateInMillis));
         holder.setDateInMillis(dateInMillis);
 
         // Get description from weather condition ID
-        String description = Utility.getStringForWeatherCondition(context, weatherId);
+        String description = WeatherUtility.getStringForWeatherCondition(context, weatherId);
         // Find TextView and set weather forecast on it
         holder.descriptionView.setText(description);
         holder.descriptionView.setContentDescription(context.getString(R.string.a11y_forecast, description));
@@ -144,12 +147,12 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         // is not individually selectable
 
         // Read high temperature from cursor
-        String high = Utility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MAX_TEMP));
+        String high = PrefUtility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MAX_TEMP));
         holder.highTempView.setText(high);
         holder.highTempView.setContentDescription(context.getString(R.string.a11y_high_temp, high));
 
         // Read low temperature from cursor
-        String low = Utility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MIN_TEMP));
+        String low = PrefUtility.formatTemperature(context, cursor.getDouble(WeatherContract.COL_WEATHER_MIN_TEMP));
         holder.lowTempView.setText(low);
         holder.lowTempView.setContentDescription(context.getString(R.string.a11y_low_temp, low));
     }

@@ -48,6 +48,8 @@ import android.widget.TextView;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+import com.example.android.sunshine.app.utils.PrefUtility;
+import com.example.android.sunshine.app.utils.Utility;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link RecyclerView} layout.
@@ -187,7 +189,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private ForecastAdapter.OnClickHandler onClickHandler = new ForecastAdapter.OnClickHandler() {
         @Override
         public void onClick(int position, long date, View sharedElement) {
-            String locationSetting = Utility.getPreferredLocation(getActivity());
+            String locationSetting = PrefUtility.getPreferredLocation(getActivity());
             ((Callback) getActivity()).onItemSelected(
                     WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationSetting, date),
                     sharedElement
@@ -292,7 +294,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // Sort order:  Ascending, by date.
         String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
 
-        String locationSetting = Utility.getPreferredLocation(getActivity());
+        String locationSetting = PrefUtility.getPreferredLocation(getActivity());
         Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
                 locationSetting, System.currentTimeMillis());
 
@@ -368,7 +370,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         if (forecastAdapter.getItemCount() == 0) {
             @StringRes
             int message = R.string.empty_forecast_list;
-            switch (Utility.getLocationStatus(getContext())) {
+            switch (PrefUtility.getLocationStatus(getContext())) {
                 case SunshineSyncAdapter.LOCATION_STATUS_SERVER_DOWN:
                     message = R.string.empty_forecast_list_server_down;
                     break;

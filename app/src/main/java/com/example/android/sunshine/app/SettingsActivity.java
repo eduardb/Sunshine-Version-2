@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
 
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
+import com.example.android.sunshine.app.utils.PrefUtility;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
@@ -98,7 +99,7 @@ public class SettingsActivity extends PreferenceActivity
         } else {
             if (key.equals(getString(R.string.pref_location_key))) {
                 @SunshineSyncAdapter.LocationStatus
-                int status = Utility.getLocationStatus(this);
+                int status = PrefUtility.getLocationStatus(this);
                 switch (status) {
                     case SunshineSyncAdapter.LOCATION_STATUS_OK:
                         preference.setSummary(stringValue);
@@ -130,7 +131,7 @@ public class SettingsActivity extends PreferenceActivity
         if (key.equals(getString(R.string.pref_location_key))) {
             // we've changed the location
             // first clear locationStatus
-            Utility.resetLocationStatus(this);
+            PrefUtility.resetLocationStatus(this);
             SunshineSyncAdapter.syncImmediately(this);
         } else if (getString(R.string.pref_location_status_key).equals(key)) {
             Preference locationPreference = findPreference(getString(R.string.pref_location_key));
