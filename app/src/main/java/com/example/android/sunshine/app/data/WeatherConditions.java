@@ -21,5 +21,8 @@ public abstract class WeatherConditions {
 
     public abstract float pressure();
 
+    public abstract String lat();
+
+    public abstract String lng();
 
 }

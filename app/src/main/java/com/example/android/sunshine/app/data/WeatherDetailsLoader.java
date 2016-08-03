@@ -109,7 +109,8 @@ public class WeatherDetailsLoader {
                         data.getFloat(COL_WEATHER_HUMIDITY),
                         data.getFloat(COL_WEATHER_WIND_SPEED),
                         data.getFloat(COL_WEATHER_DEGREES),
-                        data.getFloat(COL_WEATHER_PRESSURE)
+                        data.getFloat(COL_WEATHER_PRESSURE),
+                        null, null // unused
                 );
             }
 

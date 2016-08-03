@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,9 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,30 +42,33 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import com.example.android.sunshine.app.data.ForecastLoader;
+import com.example.android.sunshine.app.data.WeatherConditions;
 import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 import com.example.android.sunshine.app.utils.PrefUtility;
 import com.example.android.sunshine.app.utils.Utility;
 
+import java.util.List;
+
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link RecyclerView} layout.
  */
-public class ForecastFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class ForecastFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
 
-    private ForecastAdapter forecastAdapter;
-    private RecyclerView recyclerView;
+    private ForecastLoader forecastLoader;
+    ForecastAdapter forecastAdapter;
+    RecyclerView recyclerView;
     private TextView emptyView;
-    private int position = RecyclerView.NO_POSITION;
+    int position = RecyclerView.NO_POSITION;
     private boolean useTodayLayout;
-    private boolean autoSelectView;
-    private boolean holdForTransition;
+    boolean autoSelectView;
+    boolean holdForTransition;
 
     private static final String SELECTED_KEY = "selected_position";
 
-    private static final int FORECAST_LOADER = 0;
 
     /**
      * A callback interface that all activities containing this fragment must
@@ -149,6 +148,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // use it to populate the RecyclerView it's attached to.
         forecastAdapter = new ForecastAdapter(getContext(), onClickHandler, autoSelectView);
 
+        forecastLoader = new ForecastLoader(getContext(), getLoaderManager(), onForecastLoadedListener);
+
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         // use this setting to improve performance if you know that changes
@@ -185,6 +186,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         recyclerView.clearOnScrollListeners();
         super.onDestroyView();
     }
+
+    private ForecastLoader.OnForecastLoadedListener onForecastLoadedListener = new ForecastLoader.OnForecastLoadedListener() {
+        @Override
+        public void onForecastLoaded(List<WeatherConditions> forecast) {
+            forecastAdapter.setData(forecast);
+            if (position != RecyclerView.NO_POSITION) {
+                // If we don't need to restart the loader, and there's a desired position to restore
+                // to, do so now.
+                recyclerView.smoothScrollToPosition(position);
+            }
+            updateEmptyView();
+            if (forecast.isEmpty()) {
+                getActivity().supportStartPostponedEnterTransition();
+            } else {
+                updateSelection();
+            }
+        }
+    };
 
     private ForecastAdapter.OnClickHandler onClickHandler = new ForecastAdapter.OnClickHandler() {
         @Override
@@ -233,14 +252,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         if (holdForTransition) {
             getActivity().supportPostponeEnterTransition();
         }
-        getLoaderManager().initLoader(FORECAST_LOADER, null, this);
+        forecastLoader.startLoading();
         super.onActivityCreated(savedInstanceState);
     }
 
     // since we read the location when we create the loader, all we need to do is restart things
     void onLocationChanged() {
         updateWeather();
-        getLoaderManager().restartLoader(FORECAST_LOADER, null, this);
+        forecastLoader.restartLoading();
     }
 
     private void updateWeather() {
@@ -251,24 +270,18 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         // Using the URI scheme for showing a location found on a map.  This super-handy
         // intent can is detailed in the "Common Intents" page of Android's developer site:
         // http://developer.android.com/guide/components/intents-common.html#Maps
-        if (null != forecastAdapter) {
-            Cursor c = forecastAdapter.getCursor();
-            if (null != c) {
-                c.moveToPosition(0);
-                String posLat = c.getString(WeatherContract.COL_COORD_LAT);
-                String posLong = c.getString(WeatherContract.COL_COORD_LONG);
-                Uri geoLocation = Uri.parse("geo:" + posLat + "," + posLong);
+        if (null != forecastAdapter && forecastAdapter.getItemCount() > 0) {
+            WeatherConditions conditions = forecastAdapter.getItemAt(0);
+            Uri geoLocation = Uri.parse("geo:" + conditions.lat() + "," + conditions.lng());
 
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(geoLocation);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(geoLocation);
 
-                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                    startActivity(intent);
-                } else {
-                    Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
-                }
+            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            } else {
+                Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() + ", no receiving apps installed!");
             }
-
         }
     }
 
@@ -283,48 +296,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        // This is called when a new Loader needs to be created.  This
-        // fragment only uses one loader, so we don't care about checking the id.
 
-        // To only show current and future dates, filter the query to return weather only for
-        // dates after or including today.
-
-        // Sort order:  Ascending, by date.
-        String sortOrder = WeatherContract.WeatherEntry.COLUMN_DATE + " ASC";
-
-        String locationSetting = PrefUtility.getPreferredLocation(getActivity());
-        Uri weatherForLocationUri = WeatherContract.WeatherEntry.buildWeatherLocationWithStartDate(
-                locationSetting, System.currentTimeMillis());
-
-        return new CursorLoader(
-                getActivity(),
-                weatherForLocationUri,
-                WeatherContract.FORECAST_COLUMNS,
-                null,
-                null,
-                sortOrder
-        );
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        forecastAdapter.swapCursor(data);
-        if (position != RecyclerView.NO_POSITION) {
-            // If we don't need to restart the loader, and there's a desired position to restore
-            // to, do so now.
-            recyclerView.smoothScrollToPosition(position);
-        }
-        updateEmptyView();
-        if (data.getCount() == 0) {
-            getActivity().supportStartPostponedEnterTransition();
-        } else {
-            updateSelection();
-        }
-    }
-
-    private void updateSelection() {
+    void updateSelection() {
         recyclerView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
             @Override
             public boolean onPreDraw() {
@@ -350,11 +323,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         });
     }
 
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        forecastAdapter.swapCursor(null);
-    }
-
     public void setUseTodayLayout(boolean useTodayLayout) {
         this.useTodayLayout = useTodayLayout;
         if (forecastAdapter != null) {
@@ -366,7 +334,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
      * Updates the empty list view with contextually relevant information that the user can
      * use to determine why they aren't seeing weather
      */
-    private void updateEmptyView() {
+    void updateEmptyView() {
         if (forecastAdapter.getItemCount() == 0) {
             @StringRes
             int message = R.string.empty_forecast_list;
