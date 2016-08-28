@@ -20,13 +20,13 @@ public class ForecastLoader {
 
     final Context context;
     final LoaderManager loaderManager;
-    final OnForecastLoadedListener onForecastLoadedListener;
+    final ForecastLoaderListener forecastLoaderListener;
     private final LoaderCallbacks loaderCallbacks;
 
-    public ForecastLoader(Context context, LoaderManager loaderManager, OnForecastLoadedListener onForecastLoadedListener) {
+    public ForecastLoader(Context context, LoaderManager loaderManager, ForecastLoaderListener forecastLoaderListener) {
         this.context = context;
         this.loaderManager = loaderManager;
-        this.onForecastLoadedListener = onForecastLoadedListener;
+        this.forecastLoaderListener = forecastLoaderListener;
         this.loaderCallbacks = new LoaderCallbacks();
     }
 
@@ -38,7 +38,7 @@ public class ForecastLoader {
         loaderManager.restartLoader(FORECAST_LOADER, null, loaderCallbacks);
     }
 
-    public interface OnForecastLoadedListener {
+    public interface ForecastLoaderListener {
         void onForecastLoaded(List<WeatherConditions> forecast);
     }
 
@@ -98,7 +98,7 @@ public class ForecastLoader {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            if (onForecastLoadedListener == null) {
+            if (forecastLoaderListener == null) {
                 return;
             }
 
@@ -116,13 +116,13 @@ public class ForecastLoader {
                 forecast.add(weatherConditions);
             }
 
-            onForecastLoadedListener.onForecastLoaded(Collections.unmodifiableList(forecast));
+            forecastLoaderListener.onForecastLoaded(Collections.unmodifiableList(forecast));
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-            if (onForecastLoadedListener != null) {
-                onForecastLoadedListener.onForecastLoaded(Collections.<WeatherConditions>emptyList());
+            if (forecastLoaderListener != null) {
+                forecastLoaderListener.onForecastLoaded(Collections.<WeatherConditions>emptyList());
             }
         }
     }

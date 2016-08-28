@@ -34,7 +34,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.data.WeatherConditions;
 import com.example.android.sunshine.app.data.WeatherDetailsLoader;
-import com.example.android.sunshine.app.data.WeatherDetailsLoader.OnWeatherDetailsLoadedListener;
+import com.example.android.sunshine.app.data.WeatherDetailsLoader.WeatherDetailsLoaderListener;
 import com.example.android.sunshine.app.utils.DateUtility;
 import com.example.android.sunshine.app.utils.PrefUtility;
 import com.example.android.sunshine.app.utils.WeatherUtility;
@@ -77,7 +77,7 @@ public class DetailFragment extends Fragment {
             uri = arguments.getParcelable(DETAIL_URI);
             transitionAnimation = arguments.getBoolean(DETAIL_TRANSITION_ANIMATION);
         }
-        weatherDetailsLoader = new WeatherDetailsLoader(uri, getContext(), getLoaderManager(), onWeatherDetailsLoadedListener);
+        weatherDetailsLoader = new WeatherDetailsLoader(uri, getContext(), getLoaderManager(), weatherDetailsLoaderListener);
 
         View rootView = inflater.inflate(R.layout.fragment_detail_start, container, false);
         iconView = (ImageView) rootView.findViewById(R.id.detail_icon);
@@ -127,15 +127,18 @@ public class DetailFragment extends Fragment {
         weatherDetailsLoader.restartLoadingFor(newLocation);
     }
 
-    private OnWeatherDetailsLoadedListener onWeatherDetailsLoadedListener = new OnWeatherDetailsLoadedListener() {
+    private WeatherDetailsLoaderListener weatherDetailsLoaderListener = new WeatherDetailsLoaderListener() {
+
         @Override
         public void onWeatherDetailsLoaded(WeatherConditions weatherConditions) {
-            if (weatherConditions != null) {
-                updateUiWith(weatherConditions);
-            }
+            updateUiWith(weatherConditions);
+        }
 
+        @Override
+        public void onLoadCompleted() {
             setUpToolbar();
         }
+
     };
 
     void updateUiWith(WeatherConditions conditions) {

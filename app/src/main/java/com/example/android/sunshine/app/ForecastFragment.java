@@ -148,7 +148,7 @@ public class ForecastFragment extends Fragment implements SharedPreferences.OnSh
         // use it to populate the RecyclerView it's attached to.
         forecastAdapter = new ForecastAdapter(getContext(), onClickHandler, autoSelectView);
 
-        forecastLoader = new ForecastLoader(getContext(), getLoaderManager(), onForecastLoadedListener);
+        forecastLoader = new ForecastLoader(getContext(), getLoaderManager(), forecastLoaderListener);
 
         recyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_forecast);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -187,7 +187,7 @@ public class ForecastFragment extends Fragment implements SharedPreferences.OnSh
         super.onDestroyView();
     }
 
-    private ForecastLoader.OnForecastLoadedListener onForecastLoadedListener = new ForecastLoader.OnForecastLoadedListener() {
+    private ForecastLoader.ForecastLoaderListener forecastLoaderListener = new ForecastLoader.ForecastLoaderListener() {
         @Override
         public void onForecastLoaded(List<WeatherConditions> forecast) {
             forecastAdapter.setData(forecast);

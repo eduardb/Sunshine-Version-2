@@ -15,14 +15,14 @@ public class WeatherDetailsLoader {
     Uri uri;
     final Context context;
     final LoaderManager loaderManager;
-    final OnWeatherDetailsLoadedListener onWeatherDetailsLoadedListener;
+    final WeatherDetailsLoaderListener weatherDetailsLoaderListener;
     private final LoaderCallbacks loaderCallbacks;
 
-    public WeatherDetailsLoader(Uri uri, Context context, LoaderManager loaderManager, OnWeatherDetailsLoadedListener onWeatherDetailsLoadedListener) {
+    public WeatherDetailsLoader(Uri uri, Context context, LoaderManager loaderManager, WeatherDetailsLoaderListener weatherDetailsLoaderListener) {
         this.loaderManager = loaderManager;
         this.uri = uri;
         this.context = context;
-        this.onWeatherDetailsLoadedListener = onWeatherDetailsLoadedListener;
+        this.weatherDetailsLoaderListener = weatherDetailsLoaderListener;
         this.loaderCallbacks = new LoaderCallbacks();
     }
 
@@ -39,8 +39,12 @@ public class WeatherDetailsLoader {
         }
     }
 
-    public interface OnWeatherDetailsLoadedListener {
+    public interface WeatherDetailsLoaderListener {
+
         void onWeatherDetailsLoaded(WeatherConditions weatherConditions);
+
+        void onLoadCompleted();
+
     }
 
     private class LoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -95,13 +99,12 @@ public class WeatherDetailsLoader {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            if (onWeatherDetailsLoadedListener == null) {
+            if (weatherDetailsLoaderListener == null) {
                 return;
             }
 
-            WeatherConditions weatherConditions = null;
             if (data != null && data.moveToFirst()) {
-                weatherConditions = new AutoValue_WeatherConditions(
+                WeatherConditions weatherConditions = new AutoValue_WeatherConditions(
                         data.getInt(COL_WEATHER_CONDITION_ID),
                         data.getLong(COL_WEATHER_DATE),
                         data.getDouble(COL_WEATHER_MAX_TEMP),
@@ -112,9 +115,11 @@ public class WeatherDetailsLoader {
                         data.getFloat(COL_WEATHER_PRESSURE),
                         null, null // unused
                 );
+                weatherDetailsLoaderListener.onWeatherDetailsLoaded(weatherConditions);
             }
 
-            onWeatherDetailsLoadedListener.onWeatherDetailsLoaded(weatherConditions);
+            weatherDetailsLoaderListener.onLoadCompleted();
+
         }
 
         @Override
