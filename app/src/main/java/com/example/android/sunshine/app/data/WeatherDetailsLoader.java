@@ -19,9 +19,9 @@ public class WeatherDetailsLoader {
     private final LoaderCallbacks loaderCallbacks;
 
     public WeatherDetailsLoader(Uri uri, Context context, LoaderManager loaderManager, WeatherDetailsLoaderListener weatherDetailsLoaderListener) {
-        this.loaderManager = loaderManager;
         this.uri = uri;
         this.context = context;
+        this.loaderManager = loaderManager;
         this.weatherDetailsLoaderListener = weatherDetailsLoaderListener;
         this.loaderCallbacks = new LoaderCallbacks();
     }
