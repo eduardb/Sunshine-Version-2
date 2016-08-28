@@ -1,16 +1,19 @@
 package com.example.android.sunshine.app.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.format.Time;
 
 import com.example.android.sunshine.app.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 @SuppressWarnings("deprecation")
-@SuppressLint("SimpleDateFormat")
 public class DateUtility {
+
+    private static final SimpleDateFormat SHORTENED_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd", Locale.getDefault());
+    private static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
+    private static final SimpleDateFormat MONTH_DAY_FORMAT = new SimpleDateFormat("MMMM dd", Locale.getDefault());
 
     private DateUtility() throws IllegalAccessException {
         throw new IllegalAccessException("Class shouldn't be instantiated!");
@@ -52,8 +55,7 @@ public class DateUtility {
             return getDayName(context, dateInMillis);
         } else {
             // Otherwise, use the form "Mon Jun 3"
-            SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-            return shortenedDateFormat.format(dateInMillis);
+            return SHORTENED_DATE_FORMAT.format(dateInMillis);
         }
     }
 
@@ -67,8 +69,7 @@ public class DateUtility {
     private static String getFormattedMonthDay(long dateInMillis) {
         Time time = new Time();
         time.setToNow();
-        SimpleDateFormat monthDayFormat = new SimpleDateFormat("MMMM dd");
-        return monthDayFormat.format(dateInMillis);
+        return MONTH_DAY_FORMAT.format(dateInMillis);
     }
 
     /**
@@ -109,9 +110,8 @@ public class DateUtility {
         } else {
             Time time = new Time();
             time.setToNow();
-            // Otherwise, the format is just the day of the week (e.g "Wednesday".
-            SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE");
-            return dayFormat.format(dateInMillis);
+            // Otherwise, the format is just the day of the week (e.g "Wednesday").
+            return DAY_FORMAT.format(dateInMillis);
         }
     }
 }
