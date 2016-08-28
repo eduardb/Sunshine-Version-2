@@ -57,18 +57,17 @@ import java.util.List;
 public class ForecastFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
-
-    private ForecastLoader forecastLoader;
-    ForecastAdapter forecastAdapter;
-    RecyclerView recyclerView;
-    private TextView emptyView;
-    int position = RecyclerView.NO_POSITION;
-    private boolean useTodayLayout;
-    boolean autoSelectView;
-    boolean holdForTransition;
-
     private static final String SELECTED_KEY = "selected_position";
 
+    private ForecastLoader forecastLoader;
+    private TextView emptyView;
+    private boolean useTodayLayout;
+
+    ForecastAdapter forecastAdapter;
+    RecyclerView recyclerView;
+    int position = RecyclerView.NO_POSITION;
+    boolean autoSelectView;
+    boolean holdForTransition;
 
     /**
      * A callback interface that all activities containing this fragment must
