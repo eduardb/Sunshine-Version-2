@@ -31,12 +31,13 @@ public class WeatherDetailsLoader {
     }
 
     public void restartLoadingFor(String newLocation) {
-        // replace the uri, since the location has changed
-        if (null != uri) {
-            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
-            uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
-            loaderManager.restartLoader(DETAIL_LOADER, null, loaderCallbacks);
+        if (null == uri) {
+            return;
         }
+        // replace the uri, since the location has changed
+        long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
+        uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
+        loaderManager.restartLoader(DETAIL_LOADER, null, loaderCallbacks);
     }
 
     public interface WeatherDetailsLoaderListener {
