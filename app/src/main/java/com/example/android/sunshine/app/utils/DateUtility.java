@@ -8,7 +8,6 @@ import com.example.android.sunshine.app.R;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-@SuppressWarnings("deprecation")
 public class DateUtility {
 
     private static final SimpleDateFormat SHORTENED_DATE_FORMAT = new SimpleDateFormat("EEE MMM dd", Locale.getDefault());
@@ -34,11 +33,10 @@ public class DateUtility {
         // For the next 5 days: "Wednesday" (just the day name)
         // For all days after that: "Mon Jun 8"
 
-        Time time = new Time();
-        time.setToNow();
+        long gmtOff = getGmtOffset();
         long currentTime = System.currentTimeMillis();
-        int julianDay = Time.getJulianDay(dateInMillis, time.gmtoff);
-        int currentJulianDay = Time.getJulianDay(currentTime, time.gmtoff);
+        int julianDay = getJulianDay(dateInMillis, gmtOff);
+        int currentJulianDay = getJulianDay(currentTime, gmtOff);
 
         // If the date we're building the String for is today's date, the format
         // is "Today, June 24"
@@ -59,6 +57,21 @@ public class DateUtility {
         }
     }
 
+    private static long getGmtOffset() {
+        //noinspection deprecation
+        Time time = new Time();
+        time.setToNow();
+        return time.gmtoff;
+    }
+
+    /**
+     * @see Time#getJulianDay(long, long)
+     */
+    @SuppressWarnings("deprecation") // yes, we are using Time :(
+    private static int getJulianDay(long millis, long gmtOff) {
+        return Time.getJulianDay(millis, gmtOff);
+    }
+
     /**
      * Converts db date format to the format "Month day", e.g "June 24".
      *
@@ -67,8 +80,6 @@ public class DateUtility {
      * @return The day in the form of a string formatted "December 6"
      */
     private static String getFormattedMonthDay(long dateInMillis) {
-        Time time = new Time();
-        time.setToNow();
         return MONTH_DAY_FORMAT.format(dateInMillis);
     }
 
@@ -99,17 +110,14 @@ public class DateUtility {
         // If the date is today, return the localized version of "Today" instead of the actual
         // day name.
 
-        Time t = new Time();
-        t.setToNow();
-        int julianDay = Time.getJulianDay(dateInMillis, t.gmtoff);
-        int currentJulianDay = Time.getJulianDay(System.currentTimeMillis(), t.gmtoff);
+        long gmtOff = getGmtOffset();
+        int julianDay = getJulianDay(dateInMillis, gmtOff);
+        int currentJulianDay = getJulianDay(System.currentTimeMillis(), gmtOff);
         if (julianDay == currentJulianDay) {
             return context.getString(R.string.today);
         } else if (julianDay == currentJulianDay + 1) {
             return context.getString(R.string.tomorrow);
         } else {
-            Time time = new Time();
-            time.setToNow();
             // Otherwise, the format is just the day of the week (e.g "Wednesday").
             return DAY_FORMAT.format(dateInMillis);
         }
