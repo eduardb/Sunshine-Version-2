@@ -1,9 +1,11 @@
 package com.example.android.sunshine.app;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,10 +16,12 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.places.ui.PlacePicker;
 
 public class LocationEditTextPreference extends EditTextPreference {
 
@@ -74,7 +78,15 @@ public class LocationEditTextPreference extends EditTextPreference {
         currentLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Current location clicked", Toast.LENGTH_SHORT).show();
+                PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+
+                try {
+                    Activity activity = (Activity) getContext();
+                    Intent intent = intentBuilder.build(activity);
+                    activity.startActivityForResult(intent, SettingsActivity.PLACE_PICKER_REQUEST);
+                } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                }
             }
         });
         return view;
