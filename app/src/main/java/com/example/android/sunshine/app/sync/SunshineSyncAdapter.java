@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IntDef;
-import android.support.annotation.WorkerThread;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
@@ -35,8 +34,9 @@ import com.bumptech.glide.Glide;
 import com.example.android.sunshine.app.BuildConfig;
 import com.example.android.sunshine.app.MainActivity;
 import com.example.android.sunshine.app.R;
-import com.example.android.sunshine.app.Utility;
+import com.example.android.sunshine.app.utils.PrefUtility;
 import com.example.android.sunshine.app.data.WeatherContract;
+import com.example.android.sunshine.app.utils.WeatherUtility;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -95,7 +95,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(LOG_TAG, "Starting sync");
-        String locationQuery = Utility.getPreferredLocation(getContext());
+        String locationQuery = PrefUtility.getPreferredLocation(getContext());
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -155,7 +155,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (buffer.length() == 0) {
                 // Stream was empty.  No point in parsing.
-                setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
+                PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
                 return;
             }
             forecastJsonStr = buffer.toString();
@@ -164,11 +164,11 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
-            setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
+            PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
-            setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
+            PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -239,10 +239,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         break;
                     case HttpURLConnection.HTTP_NOT_FOUND:
                         // Location invalid
-                        setLocationStatus(getContext(), LOCATION_STATUS_INVALID);
+                        PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_INVALID);
                         return;
                     default:
-                        setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
+                        PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_SERVER_DOWN);
                         return;
                 }
             }
@@ -350,12 +350,12 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
             }
 
             Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
-            setLocationStatus(getContext(), LOCATION_STATUS_OK);
+            PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_OK);
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
-            setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
+            PrefUtility.setLocationStatus(getContext(), LOCATION_STATUS_SERVER_INVALID);
         }
     }
 
@@ -376,7 +376,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) {
                 // Last sync was more than 1 day ago, let's send a notification with the weather.
-                String locationQuery = Utility.getPreferredLocation(context);
+                String locationQuery = PrefUtility.getPreferredLocation(context);
 
                 Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
 
@@ -389,10 +389,10 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     double low = cursor.getDouble(INDEX_MIN_TEMP);
                     String desc = cursor.getString(INDEX_SHORT_DESC);
 
-                    int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+                    int iconId = WeatherUtility.getIconResourceForWeatherCondition(weatherId);
                     Resources resources = context.getResources();
-                    int artResourceId = Utility.getArtResourceForWeatherCondition(weatherId);
-                    String artUrl = Utility.getArtUrlForWeatherCondition(context, weatherId);
+                    int artResourceId = WeatherUtility.getArtResourceForWeatherCondition(weatherId);
+                    String artUrl = WeatherUtility.getArtUrlForWeatherCondition(context, weatherId);
                     @SuppressLint("InlinedApi")
                     int largeIconWidth = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB
                             ? resources.getDimensionPixelSize(android.R.dimen.notification_large_icon_width)
@@ -421,8 +421,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                     String contentText = String.format(
                             context.getString(R.string.format_notification),
                             desc,
-                            Utility.formatTemperature(context, high),
-                            Utility.formatTemperature(context, low)
+                            PrefUtility.formatTemperature(context, high),
+                            PrefUtility.formatTemperature(context, low)
                     );
 
                     // NotificationCompatBuilder is a very convenient way to build backward-compatible
@@ -610,20 +610,6 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void initializeSyncAdapter(Context context) {
         getSyncAccount(context);
-    }
-
-    /**
-     * Sets the location status into shared preference. This function should not be called from the UI thread
-     * because it uses commit to write to the shared preferences
-     *
-     * @param context        Context to get the PreferenceManager from
-     * @param locationStatus The IntDev value to set
-     */
-    @WorkerThread
-    static void setLocationStatus(Context context, @LocationStatus int locationStatus) {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        editor.putInt(context.getString(R.string.pref_location_status_key), locationStatus);
-        editor.commit();
     }
 
 }

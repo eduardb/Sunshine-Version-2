@@ -1,15 +1,17 @@
-package com.example.android.sunshine.app;
+package com.example.android.sunshine.app.utils;
 
 import android.test.AndroidTestCase;
 
-public class UtilityTest extends AndroidTestCase {
+import com.example.android.sunshine.app.R;
+
+public class WeatherUtilityTest extends AndroidTestCase {
 
     public void testGivenStormWeatherCondition_whenGetStringForWeatherCondition_thenReturnCorrectString() {
         int givenWeatherCondition = 200;
 
         String expected = getContext().getString(R.string.Storm);
 
-        String result = Utility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
+        String result = WeatherUtility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
 
         assertEquals(expected, result);
     }
@@ -19,7 +21,7 @@ public class UtilityTest extends AndroidTestCase {
 
         String expected = getContext().getString(R.string.Drizzle);
 
-        String result = Utility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
+        String result = WeatherUtility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
 
         assertEquals(expected, result);
     }
@@ -29,7 +31,7 @@ public class UtilityTest extends AndroidTestCase {
 
         String expected = getContext().getString(R.string.Light_Rain);
 
-        String result = Utility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
+        String result = WeatherUtility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
 
         assertEquals(expected, result);
     }
@@ -39,7 +41,7 @@ public class UtilityTest extends AndroidTestCase {
 
         String expected = getContext().getString(R.string.condition_unknown, givenWeatherCondition);
 
-        String result = Utility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
+        String result = WeatherUtility.getStringForWeatherCondition(getContext(), givenWeatherCondition);
 
         assertEquals(expected, result);
     }
